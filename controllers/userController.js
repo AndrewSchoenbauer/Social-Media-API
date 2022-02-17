@@ -24,8 +24,8 @@ module.exports = {
           .populate('friends')
           .then(async (user) =>{
               const userObj = {
-                  user,
-                  friendCount: await friendCount()
+                  user
+                  
               }
               return res.json(userObj);
           })
@@ -84,4 +84,19 @@ module.exports = {
           )
           .catch((err) => res.status(500).json(err));
       },
-}
+      deleteFriend(req, res) {
+        User.findOneAndUpdate(
+          { _id: req.params.userId },
+          { $pull: { friends: { friendId: req.params.friendId } } },
+          { runValidators: true, new: true }
+        )
+          .then((user) =>
+            !user
+              ? res
+                  .status(404)
+                  .json({ message: 'No user found with that ID :(' })
+              : res.json({message: "Friend Deleted Succesfully!"})
+          )
+          .catch((err) => res.status(500).json(err));
+      },
+    };
